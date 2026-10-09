@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
   const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname);
-  const { t, activeTab, setActiveTab } = useHealth();
+  const { t, activeTab, setActiveTab, isDoctorMode, setIsDoctorMode } = useHealth();
 
   React.useEffect(() => {
     const handlePopState = () => setCurrentPath(window.location.pathname);
@@ -83,9 +83,10 @@ export const App: React.FC = () => {
             sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
           }`}
         >
-          {activeTab === 'doctor-dashboard' || currentPath === '/doctor' || currentPath === '/doctor-dashboard' ? (
+          {isDoctorMode || activeTab.startsWith('doctor') || currentPath === '/doctor' || currentPath === '/doctor-dashboard' ? (
             <DoctorDashboardPage 
               onBackToPatientView={() => {
+                setIsDoctorMode(false);
                 setActiveTab('overview');
                 if (currentPath === '/doctor' || currentPath === '/doctor-dashboard') {
                   navigateTo('/');

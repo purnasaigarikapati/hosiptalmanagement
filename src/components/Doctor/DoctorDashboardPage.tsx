@@ -50,16 +50,32 @@ export const DoctorDashboardPage: React.FC<DoctorDashboardPageProps> = ({ onBack
     t,
     currentTheme,
     themeMode,
-    addToast
+    addToast,
+    activeTab
   } = useHealth();
 
   // Selected filter tab: 'all' | 'waiting' | 'in_consultation' | 'completed'
-  const [filterTab, setFilterTab] = useState<'all' | 'waiting' | 'in_consultation' | 'completed'>('all');
+  const [filterTab, setFilterTab] = useState<'all' | 'waiting' | 'in_consultation' | 'completed'>('waiting');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Doctor switcher dropdown state
   const [showDoctorDropdown, setShowDoctorDropdown] = useState(false);
   const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+
+  // Sync with doctor sidebar clicks
+  React.useEffect(() => {
+    if (activeTab === 'doctor-consultations') {
+      setFilterTab('in_consultation');
+    } else if (activeTab === 'doctor-completed') {
+      setFilterTab('completed');
+    } else if (activeTab === 'doctor-dashboard') {
+      setFilterTab('waiting');
+    } else if (activeTab === 'doctor-roster') {
+      setFilterTab('all');
+    } else if (activeTab === 'doctor-credentials') {
+      setShowCredentialsModal(true);
+    }
+  }, [activeTab]);
 
   // Active Consultation Modal / Drawer state
   const [activeConsultationPatient, setActiveConsultationPatient] = useState<PatientAppointment | null>(null);

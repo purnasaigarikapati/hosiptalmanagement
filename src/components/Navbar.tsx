@@ -41,6 +41,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     toggleThemeMode,
     activeTab,
     setActiveTab,
+    isDoctorMode,
+    setIsDoctorMode,
     currentDoctor,
     t, 
     setIsSearchOpen, 
@@ -77,9 +79,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
 
   const activeLangMeta = INDIAN_LANGUAGES.find(l => l.code === language) || INDIAN_LANGUAGES[0];
   const unreadAlerts = insights.filter(i => i.reviewStatus === 'needs_attention');
-  const isDoctorActive = activeTab === 'doctor-dashboard';
+  const isDoctorActive = isDoctorMode || activeTab.startsWith('doctor') || window.location.pathname.startsWith('/doctor');
 
   const handleLogoClick = () => {
+    setIsDoctorMode(false);
     setActiveTab('overview');
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -143,6 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
             {/* Patient Portal Option */}
             <button
               onClick={() => {
+                setIsDoctorMode(false);
                 setActiveTab('overview');
                 window.history.pushState({}, '', '/');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -162,6 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
             {/* Doctor Portal Option */}
             <button
               onClick={() => {
+                setIsDoctorMode(true);
                 setActiveTab('doctor-dashboard');
                 window.history.pushState({}, '', '/doctor');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -534,6 +539,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                   {/* Switch to Patient View */}
                   <button
                     onClick={() => {
+                      setIsDoctorMode(false);
                       setActiveTab('overview');
                       setShowUserDropdown(false);
                       window.history.pushState({}, '', '/');
@@ -548,6 +554,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                   {/* Switch to Doctor Dashboard */}
                   <button
                     onClick={() => {
+                      setIsDoctorMode(true);
                       setActiveTab('doctor-dashboard');
                       setShowUserDropdown(false);
                       window.history.pushState({}, '', '/doctor');
@@ -562,6 +569,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                   {/* Patient Appointments */}
                   <button
                     onClick={() => {
+                      setIsDoctorMode(false);
                       setActiveTab('appointments');
                       setShowUserDropdown(false);
                       window.history.pushState({}, '', '/appointments');
