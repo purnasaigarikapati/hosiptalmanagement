@@ -26,7 +26,7 @@ if (isPostgresConfigured) {
 /**
  * Initialize PostgreSQL tables if connected
  */
-export async function initPostgresTables(initialRecords = []) {
+export async function initPostgresTables(initialRecords = [], initialAppointments = []) {
   if (!pool) {
     console.log('[Database] Running in In-Memory / Local Storage Mode (DATABASE_URL not configured).');
     return false;
@@ -168,6 +168,42 @@ export async function initPostgresTables(initialRecords = []) {
         ]);
       }
       console.log('[PostgreSQL] Clinical seed completed successfully.');
+    }
+
+    // Check if initial appointments exist
+    const aptCountRes = await client.query('SELECT COUNT(*) FROM appointments');
+    const existingAptCount = parseInt(aptCountRes.rows[0].count, 10);
+
+    if (existingAptCount === 0 && initialAppointments.length > 0) {
+      console.log(`[PostgreSQL] Seeding ${initialAppointments.length} default patient appointments & doctor tokens into database...`);
+      for (const apt of initialAppointments) {
+        await client.query(`
+          INSERT INTO appointments
+          (id, token_number, token_code, patient_name, age, gender, phone, weight, doctor_id, doctor_name, doctor_specialty, doctor_room, appointment_date, time_slot, health_description, queue_position, estimated_wait_minutes, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+          ON CONFLICT (id) DO NOTHING
+        `, [
+          apt.id,
+          apt.tokenNumber,
+          apt.tokenCode,
+          apt.patientName,
+          apt.age,
+          apt.gender,
+          apt.phone,
+          apt.weight,
+          apt.doctor?.id || 'doc-001',
+          apt.doctor?.name || 'Dr. Arvind Rao, DM',
+          apt.doctor?.specialty || 'Senior Interventional Cardiologist',
+          apt.doctor?.roomNumber || apt.doctor?.room || 'Cabin 304, 3rd Floor',
+          apt.date,
+          apt.timeSlot,
+          apt.healthDescription,
+          apt.queuePosition || 1,
+          apt.estimatedWaitMinutes || 15,
+          apt.status ? apt.status.toLowerCase() : 'confirmed'
+        ]);
+      }
+      console.log('[PostgreSQL] Appointment tokens seeded successfully.');
     }
 
     client.release();

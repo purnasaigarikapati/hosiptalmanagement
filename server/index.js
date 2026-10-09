@@ -610,11 +610,18 @@ app.get('/api/db/status', async (req, res) => {
     try {
       const dbRes = await query('SELECT COUNT(*) FROM medical_records');
       const count = dbRes ? parseInt(dbRes.rows[0].count, 10) : 0;
+      let aptCount = 0;
+      try {
+        const aptRes = await query('SELECT COUNT(*) FROM appointments');
+        aptCount = aptRes ? parseInt(aptRes.rows[0].count, 10) : 0;
+      } catch {}
+
       res.json({
         configured: true,
         provider: 'PostgreSQL (Render Cloud)',
         status: 'Connected',
         recordCount: count,
+        appointmentCount: aptCount,
         urlConfigured: true
       });
     } catch (err) {
@@ -623,7 +630,8 @@ app.get('/api/db/status', async (req, res) => {
         provider: 'PostgreSQL',
         status: 'Connection Error (In-Memory Fallback Active)',
         error: err.message,
-        recordCount: medicalRecords.length
+        recordCount: medicalRecords.length,
+        appointmentCount: appointments.length
       });
     }
   } else {
@@ -631,7 +639,8 @@ app.get('/api/db/status', async (req, res) => {
       configured: false,
       provider: 'In-Memory Clinical Graph (Local / Demo)',
       status: 'Active (Deploy to Render with DATABASE_URL to enable PostgreSQL)',
-      recordCount: medicalRecords.length
+      recordCount: medicalRecords.length,
+      appointmentCount: appointments.length
     });
   }
 });
@@ -1110,7 +1119,7 @@ app.listen(PORT, async () => {
   console.log(`[ALTRIX HEALTH] Backend Intelligence Server running on http://localhost:${PORT}`);
   if (isPostgresConfigured) {
     console.log('[ALTRIX HEALTH] PostgreSQL detected via DATABASE_URL. Initializing schema & tables...');
-    await initPostgresTables(medicalRecords);
+    await initPostgresTables(medicalRecords, appointments);
   } else {
     console.log('[ALTRIX HEALTH] Running in In-Memory / Local Storage mode. To use PostgreSQL on Render, set DATABASE_URL.');
   }
