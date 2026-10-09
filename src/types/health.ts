@@ -97,6 +97,7 @@ export interface TimelineEvent {
   statusColor: 'teal' | 'amber' | 'red';
   highlights: string[];
   recordId: string;
+  summary?: string;
 }
 
 export interface Medication {
