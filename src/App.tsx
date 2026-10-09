@@ -18,6 +18,7 @@ import { SettingsModal } from './components/Modals/SettingsModal';
 import { AuthModal } from './components/Auth/AuthModal';
 import { AuthFullPage } from './components/Auth/AuthFullPage';
 import { PatientAppointmentsPage } from './components/Appointments/PatientAppointmentsPage';
+import { DoctorDashboardPage } from './components/Doctor/DoctorDashboardPage';
 import { ToastContainer } from './components/ToastContainer';
 import { useHealth } from './context/HealthContext';
 import { Activity, Shield, Sparkles, Heart } from 'lucide-react';
@@ -82,7 +83,16 @@ export const App: React.FC = () => {
             sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
           }`}
         >
-          {activeTab === 'appointments' || currentPath === '/appointments' ? (
+          {activeTab === 'doctor-dashboard' || currentPath === '/doctor' || currentPath === '/doctor-dashboard' ? (
+            <DoctorDashboardPage 
+              onBackToPatientView={() => {
+                setActiveTab('overview');
+                if (currentPath === '/doctor' || currentPath === '/doctor-dashboard') {
+                  navigateTo('/');
+                }
+              }}
+            />
+          ) : activeTab === 'appointments' || currentPath === '/appointments' ? (
             <PatientAppointmentsPage 
               onBackToDashboard={() => {
                 setActiveTab('overview');

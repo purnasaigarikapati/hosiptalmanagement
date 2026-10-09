@@ -13,7 +13,9 @@ import {
   CheckCircle2, 
   AlertCircle,
   KeyRound,
-  ShieldAlert
+  ShieldAlert,
+  Stethoscope,
+  Key
 } from 'lucide-react';
 import { useHealth } from '../../context/HealthContext';
 
@@ -26,12 +28,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onClose 
   const { 
     login, 
     loginAsDemo, 
+    loginAsDoctor,
     language, 
     setLanguage, 
     t, 
     addToast 
   } = useHealth();
 
+  const [roleTab, setRoleTab] = useState<'patient' | 'doctor'>('patient');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +48,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onClose 
     setErrorMessage('');
 
     if (!email.trim()) {
-      setErrorMessage('Please enter your email or ABHA Health ID.');
+      setErrorMessage(roleTab === 'doctor' ? 'Please enter doctor email or Staff ID.' : 'Please enter your email or ABHA Health ID.');
       return;
     }
     if (!password) {
@@ -54,7 +58,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onClose 
 
     setIsLoading(true);
     try {
-      await login(email, password);
+      if (roleTab === 'doctor') {
+        await loginAsDoctor(email, password);
+      } else {
+        await login(email, password);
+      }
       if (onClose) onClose();
     } catch {
       setErrorMessage('Invalid credentials. Please try again.');
@@ -134,13 +142,73 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onClose 
         </div>
       </div>
 
+      {/* Portal Role Switcher: Patient vs Doctor */}
+      <div className="flex rounded-xl bg-slate-900/90 p-1 border border-slate-700/80 mb-5">
+        <button
+          type="button"
+          onClick={() => {
+            setRoleTab('patient');
+            setEmail('');
+            setPassword('');
+          }}
+          className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
+            roleTab === 'patient'
+              ? 'bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(0,242,254,0.3)]'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Activity className="w-3.5 h-3.5" />
+          <span>Patient Portal</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setRoleTab('doctor');
+            setEmail('dr.arvind@altrixhealth.com');
+            setPassword('Doctor@123');
+          }}
+          className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
+            roleTab === 'doctor'
+              ? 'bg-emerald-500 text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Stethoscope className="w-3.5 h-3.5" />
+          <span>Doctor Portal</span>
+        </button>
+      </div>
+
+      {/* Doctor Credentials Callout */}
+      {roleTab === 'doctor' && (
+        <div className="mb-5 p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-200 space-y-1.5 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-emerald-300 flex items-center gap-1.5">
+              <Key className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Doctor Credentials (Pre-filled):</span>
+            </span>
+            <span className="text-[10px] font-mono uppercase bg-emerald-900/60 px-2 py-0.5 rounded text-emerald-200">
+              DOC-CARDIO-001
+            </span>
+          </div>
+          <div className="font-mono text-[11px] text-slate-200 flex flex-wrap gap-2">
+            <span>Email: <strong className="text-cyan-300">dr.arvind@altrixhealth.com</strong></span>
+            <span>•</span>
+            <span>Pass: <strong className="text-emerald-300">Doctor@123</strong></span>
+          </div>
+          <div className="text-[10px] text-slate-400">
+            Dr. Arvind Rao, DM • OPD Cabin 304, Apollo Health City
+          </div>
+        </div>
+      )}
+
       {/* Greeting Title */}
       <div className="text-center mb-6">
         <h2 className="text-2xl font-extrabold text-white tracking-tight">
-          {t.signIn}
+          {roleTab === 'doctor' ? 'Doctor Portal Sign In' : t.signIn}
         </h2>
         <p className="text-xs text-slate-400 mt-1">
-          {t.signInSubtitle}
+          {roleTab === 'doctor' ? 'Access your clinical patient queue & OPD tokens' : t.signInSubtitle}
         </p>
       </div>
 
@@ -158,7 +226,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onClose 
         {/* Email or ABHA ID */}
         <div>
           <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-1.5">
-            {t.emailOrAbha}
+            {roleTab === 'doctor' ? 'Doctor Email or Staff ID' : t.emailOrAbha}
           </label>
           <div className="relative">
             <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -233,14 +301,28 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSwitchToSignup, onClose 
       {/* 1-Click Instant Demo Login Banner */}
       <div className="mt-5 pt-4 border-t border-slate-800 space-y-2.5">
         
-        <button
-          type="button"
-          onClick={handleDemoSignIn}
-          className="w-full py-2.5 px-3 rounded-2xl bg-cyan-950/40 hover:bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 group shadow-sm"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400 group-hover:rotate-12 transition" />
-          <span>{t.instantDemoLogin}</span>
-        </button>
+        {roleTab === 'doctor' ? (
+          <button
+            type="button"
+            onClick={async () => {
+              await loginAsDoctor('dr.arvind@altrixhealth.com', 'Doctor@123');
+              if (onClose) onClose();
+            }}
+            className="w-full py-2.5 px-3 rounded-2xl bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 group shadow-sm"
+          >
+            <Stethoscope className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition" />
+            <span>Instant Doctor Login (Dr. Arvind Rao, DM)</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleDemoSignIn}
+            className="w-full py-2.5 px-3 rounded-2xl bg-cyan-950/40 hover:bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 group shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400 group-hover:rotate-12 transition" />
+            <span>{t.instantDemoLogin}</span>
+          </button>
+        )}
 
         <div className="grid grid-cols-2 gap-2">
           <button

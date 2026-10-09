@@ -16,7 +16,8 @@ import {
   LogOut,
   Sun,
   Moon,
-  CalendarCheck
+  CalendarCheck,
+  Stethoscope
 } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 
@@ -39,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     t, 
     insights,
     appointments,
+    currentDoctor,
     scrollToSection,
     setIsSettingsOpen,
     setIsProfileOpen,
@@ -52,10 +54,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   } = useHealth();
 
   const unreadCount = insights.filter(i => i.reviewStatus === 'needs_attention').length;
+  const doctorAppointmentsCount = appointments.filter(a => 
+    a.doctor.id === currentDoctor?.id || a.doctor.name === currentDoctor?.name
+  ).length;
 
   const navItems = [
     { id: 'overview', label: t.navOverview, icon: LayoutDashboard },
     { id: 'appointments', label: t.navAppointments || 'Patient Appointment', icon: CalendarCheck, badge: appointments.length > 0 ? `${appointments.length}` : undefined, badgeColor: 'cyan' },
+    { id: 'doctor-dashboard', label: t.navDoctorDashboard || 'Doctor Dashboard', icon: Stethoscope, badge: doctorAppointmentsCount > 0 ? `${doctorAppointmentsCount}` : undefined, badgeColor: 'emerald' },
     { id: 'records', label: t.navRecords, icon: FileText, badge: '7' },
     { id: 'insights', label: t.navInsights, icon: Sparkles, badge: unreadCount > 0 ? `${unreadCount}` : undefined, badgeColor: 'rose' },
     { id: 'timeline', label: t.navTimeline, icon: Clock },
@@ -70,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       item.action();
     } else {
       setActiveTab(item.id);
-      if (item.id === 'appointments' || item.id === 'overview') {
+      if (item.id === 'appointments' || item.id === 'doctor-dashboard' || item.id === 'overview') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (item.id === 'timeline') {
         scrollToSection('timeline-section');
@@ -144,6 +150,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-tight ${
                       item.badgeColor === 'rose'
                         ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                        : item.badgeColor === 'emerald'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                         : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
                     }`}
                   >

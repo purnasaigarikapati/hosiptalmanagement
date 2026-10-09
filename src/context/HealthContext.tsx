@@ -42,11 +42,17 @@ interface HealthContextType {
   setThemeMode: (mode: ThemeMode) => void;
   toggleThemeMode: () => void;
   
-  // Appointments System
+  // Appointments & Doctor Portal System
   appointments: PatientAppointment[];
   doctors: Doctor[];
   bookAppointment: (data: Omit<PatientAppointment, 'id' | 'tokenNumber' | 'tokenCode' | 'status' | 'queuePosition' | 'estimatedWaitMinutes' | 'createdAt'>) => PatientAppointment;
   cancelAppointment: (id: string) => void;
+  updateAppointmentStatus: (id: string, status: 'Confirmed' | 'In Consultation' | 'Completed' | 'Cancelled', doctorNotes?: string) => void;
+  currentDoctor: Doctor;
+  setCurrentDoctor: (doc: Doctor) => void;
+  loginAsDoctor: (emailOrStaffId: string, password?: string) => Promise<boolean>;
+  isDoctorMode: boolean;
+  setIsDoctorMode: (mode: boolean) => void;
 
   // Auth State
   user: User | null;
@@ -152,7 +158,7 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Hospital Appointments System
+  // Hospital Appointments & Doctor Portal System
   const INITIAL_APPOINTMENTS: PatientAppointment[] = [
     {
       id: 'apt-001',
@@ -163,13 +169,93 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       gender: 'Male',
       phone: '+91 98480 12345',
       weight: '72 kg',
-      doctor: DOCTORS[0], // Dr. Arvind Rao
+      doctor: DOCTORS[0], // Dr. Arvind Rao (Cardiology)
       date: '2026-10-12',
       timeSlot: '10:15 AM',
-      healthDescription: 'Follow-up consultation for borderline LDL cholesterol (138 mg/dL) and Metformin ER glycemic tolerance. Experiencing occasional mild fatigue.',
+      healthDescription: 'Follow-up consultation for borderline LDL cholesterol (138 mg/dL) and Metformin ER glycemic tolerance. Experiencing occasional evening fatigue.',
       status: 'Confirmed',
       queuePosition: 3,
-      estimatedWaitMinutes: 15,
+      estimatedWaitMinutes: 20,
+      vitals: { bp: '124/82', pulse: '74 bpm', spo2: '99%', temp: '98.6°F' },
+      createdAt: '2026-10-09'
+    },
+    {
+      id: 'apt-002',
+      tokenNumber: 'ALTRIX-TK-1140',
+      tokenCode: 'TK #01',
+      patientName: 'Rajesh Sharma',
+      age: 52,
+      gender: 'Male',
+      phone: '+91 98230 45678',
+      weight: '81 kg',
+      doctor: DOCTORS[0],
+      date: '2026-10-12',
+      timeSlot: '09:30 AM',
+      healthDescription: 'Hypertension management & ECG ST-wave review. Morning home BP spikes up to 146/92 mmHg. Experiencing mild morning occipital headaches.',
+      status: 'In Consultation',
+      queuePosition: 1,
+      estimatedWaitMinutes: 0,
+      vitals: { bp: '138/88', pulse: '78 bpm', spo2: '98%', temp: '98.4°F' },
+      doctorNotes: 'Patient currently undergoing ECG and clinical auscultation. S1 S2 heard normally. Titrating Telmisartan from 40mg to 40mg + Amlodipine 5mg.',
+      createdAt: '2026-10-09'
+    },
+    {
+      id: 'apt-003',
+      tokenNumber: 'ALTRIX-TK-2401',
+      tokenCode: 'TK #02',
+      patientName: 'Priya Sundaram',
+      age: 47,
+      gender: 'Female',
+      phone: '+91 94440 88990',
+      weight: '64 kg',
+      doctor: DOCTORS[0],
+      date: '2026-10-12',
+      timeSlot: '10:00 AM',
+      healthDescription: 'Post-CABG surgery 6-month checkup. Review of recent 2D-Echocardiogram and lipid panel.',
+      status: 'Completed',
+      queuePosition: 2,
+      estimatedWaitMinutes: 0,
+      vitals: { bp: '120/78', pulse: '72 bpm', spo2: '99%', temp: '98.6°F' },
+      doctorNotes: 'Cardiac recovery exemplary. Ejection fraction 55% with normal LV systolic function. Continue Atorvastatin 20mg and baby Aspirin 75mg daily. Follow-up after 4 months.',
+      prescriptions: ['Atorvastatin 20mg - 1 Tab OD (Night)', 'Ecosprin 75mg - 1 Tab OD (After Lunch)'],
+      createdAt: '2026-10-09'
+    },
+    {
+      id: 'apt-004',
+      tokenNumber: 'ALTRIX-TK-3819',
+      tokenCode: 'TK #03',
+      patientName: 'Mohammed Farooq',
+      age: 58,
+      gender: 'Male',
+      phone: '+91 97000 66554',
+      weight: '76 kg',
+      doctor: DOCTORS[0],
+      date: '2026-10-12',
+      timeSlot: '11:00 AM',
+      healthDescription: 'Exertional chest tightness during brisk walking or climbing 2 flights of stairs. Relieved after 5 minutes of rest. Seeking treadmill stress test (TMT) recommendation.',
+      status: 'Confirmed',
+      queuePosition: 4,
+      estimatedWaitMinutes: 35,
+      vitals: { bp: '132/86', pulse: '82 bpm', spo2: '97%', temp: '98.5°F' },
+      createdAt: '2026-10-09'
+    },
+    {
+      id: 'apt-005',
+      tokenNumber: 'ALTRIX-TK-4920',
+      tokenCode: 'TK #04',
+      patientName: 'Ananya Reddy',
+      age: 31,
+      gender: 'Female',
+      phone: '+91 91234 56789',
+      weight: '58 kg',
+      doctor: DOCTORS[0],
+      date: '2026-10-12',
+      timeSlot: '11:45 AM',
+      healthDescription: 'Sudden episodes of fluttering heartbeat and palpitations during evening office hours. Inquiring whether 24-hr Holter monitor is needed.',
+      status: 'Confirmed',
+      queuePosition: 5,
+      estimatedWaitMinutes: 50,
+      vitals: { bp: '116/74', pulse: '88 bpm', spo2: '99%', temp: '98.6°F' },
       createdAt: '2026-10-09'
     }
   ];
@@ -182,6 +268,9 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return INITIAL_APPOINTMENTS;
     }
   });
+
+  const [currentDoctor, setCurrentDoctor] = useState<Doctor>(DOCTORS[0]);
+  const [isDoctorMode, setIsDoctorMode] = useState<boolean>(false);
 
   useEffect(() => {
     try {
@@ -211,6 +300,60 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const cancelAppointment = (id: string) => {
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'Cancelled' as const } : a));
     addToast('info', 'Appointment Cancelled', 'Your hospital token has been cancelled.');
+  };
+
+  const updateAppointmentStatus = (
+    id: string, 
+    status: 'Confirmed' | 'In Consultation' | 'Completed' | 'Cancelled', 
+    doctorNotes?: string
+  ) => {
+    setAppointments(prev => prev.map(a => {
+      if (a.id === id) {
+        return {
+          ...a,
+          status,
+          doctorNotes: doctorNotes !== undefined ? doctorNotes : a.doctorNotes
+        };
+      }
+      return a;
+    }));
+
+    if (status === 'In Consultation') {
+      addToast('info', 'Consultation Started', 'Patient is now attending OPD cabin with doctor.');
+    } else if (status === 'Completed') {
+      addToast('success', 'Consultation Concluded', 'Visit concluded and clinical evaluation recorded.');
+    } else if (status === 'Cancelled') {
+      addToast('warning', 'Appointment Cancelled', 'Patient appointment marked as cancelled.');
+    }
+  };
+
+  const loginAsDoctor = async (emailOrStaffId: string, password?: string): Promise<boolean> => {
+    const cleanId = emailOrStaffId.trim().toLowerCase();
+    const doc = DOCTORS.find(d => 
+      d.email.toLowerCase() === cleanId || 
+      d.staffId.toLowerCase() === cleanId || 
+      d.name.toLowerCase().includes(cleanId)
+    ) || DOCTORS[0];
+
+    setCurrentDoctor(doc);
+    setIsDoctorMode(true);
+    setActiveTab('doctor-dashboard');
+    setAuthModalOpen(false);
+
+    const docUser: User = {
+      id: doc.id,
+      name: doc.name,
+      email: doc.email,
+      abhaId: `STAFF-${doc.staffId}`,
+      bloodGroup: 'B+',
+      role: `Specialist Physician (${doc.specialty})`,
+      avatar: doc.name.replace('Dr. ', '').slice(0, 2).toUpperCase(),
+      lastLogin: 'Just now'
+    };
+    setUser(docUser);
+    setIsAuthenticated(true);
+    addToast('success', 'Doctor Portal Access Granted', `Welcome Dr. ${doc.name.replace('Dr. ', '')}! OPD Cabin: ${doc.roomNumber}`);
+    return true;
   };
 
   // Authentication State
@@ -978,6 +1121,12 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         doctors: DOCTORS,
         bookAppointment,
         cancelAppointment,
+        updateAppointmentStatus,
+        currentDoctor,
+        setCurrentDoctor,
+        loginAsDoctor,
+        isDoctorMode,
+        setIsDoctorMode,
         user,
         isAuthenticated,
         authModalOpen,

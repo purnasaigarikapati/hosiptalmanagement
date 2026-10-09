@@ -177,6 +177,9 @@ export interface Doctor {
   avatar: string;
   availableDays: string[];
   timeSlots: string[];
+  email: string;
+  password?: string;
+  staffId: string;
 }
 
 export interface PatientAppointment {
@@ -192,9 +195,17 @@ export interface PatientAppointment {
   date: string;
   timeSlot: string;
   healthDescription: string;
-  status: 'Confirmed' | 'Completed' | 'Cancelled';
+  status: 'Confirmed' | 'In Consultation' | 'Completed' | 'Cancelled';
   queuePosition: number;
   estimatedWaitMinutes: number;
+  doctorNotes?: string;
+  prescriptions?: string[];
+  vitals?: {
+    bp?: string;
+    pulse?: string;
+    spo2?: string;
+    temp?: string;
+  };
   createdAt: string;
 }
 

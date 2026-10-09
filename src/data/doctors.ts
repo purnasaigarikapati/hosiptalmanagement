@@ -12,6 +12,9 @@ export const DOCTORS: Doctor[] = [
     rating: 4.9,
     consultationFee: '₹1,200',
     avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
+    email: 'dr.arvind@altrixhealth.com',
+    password: 'Doctor@123',
+    staffId: 'DOC-CARDIO-001',
     availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     timeSlots: [
       '09:00 AM', '09:30 AM', '10:15 AM', '11:00 AM', 
@@ -29,6 +32,9 @@ export const DOCTORS: Doctor[] = [
     rating: 4.95,
     consultationFee: '₹1,000',
     avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80',
+    email: 'dr.diana@altrixhealth.com',
+    password: 'Doctor@123',
+    staffId: 'DOC-CARDIO-002',
     availableDays: ['Mon', 'Wed', 'Thu', 'Fri'],
     timeSlots: [
       '09:30 AM', '10:00 AM', '10:45 AM', '11:30 AM', 
@@ -46,6 +52,9 @@ export const DOCTORS: Doctor[] = [
     rating: 4.88,
     consultationFee: '₹800',
     avatar: 'https://images.unsplash.com/photo-1594824813583-a442a5c4e976?w=150&auto=format&fit=crop&q=80',
+    email: 'dr.anita@altrixhealth.com',
+    password: 'Doctor@123',
+    staffId: 'DOC-PATH-003',
     availableDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     timeSlots: [
       '08:30 AM', '09:15 AM', '10:00 AM', '11:00 AM', 
@@ -63,6 +72,9 @@ export const DOCTORS: Doctor[] = [
     rating: 4.92,
     consultationFee: '₹1,500',
     avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150&auto=format&fit=crop&q=80',
+    email: 'dr.ramesh@altrixhealth.com',
+    password: 'Doctor@123',
+    staffId: 'DOC-ENDO-004',
     availableDays: ['Mon', 'Tue', 'Thu', 'Sat'],
     timeSlots: [
       '10:00 AM', '10:30 AM', '11:15 AM', '12:00 PM', 
@@ -80,6 +92,9 @@ export const DOCTORS: Doctor[] = [
     rating: 4.85,
     consultationFee: '₹1,100',
     avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&auto=format&fit=crop&q=80',
+    email: 'dr.mary@altrixhealth.com',
+    password: 'Doctor@123',
+    staffId: 'DOC-PULMO-005',
     availableDays: ['Tue', 'Wed', 'Fri', 'Sat'],
     timeSlots: [
       '09:00 AM', '09:45 AM', '10:30 AM', '11:30 AM', 
@@ -97,6 +112,9 @@ export const DOCTORS: Doctor[] = [
     rating: 4.96,
     consultationFee: '₹1,600',
     avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=150&auto=format&fit=crop&q=80',
+    email: 'dr.frank@altrixhealth.com',
+    password: 'Doctor@123',
+    staffId: 'DOC-ORTHO-006',
     availableDays: ['Mon', 'Wed', 'Thu', 'Sat'],
     timeSlots: [
       '10:15 AM', '11:00 AM', '11:45 AM', 

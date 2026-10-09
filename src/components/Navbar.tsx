@@ -14,7 +14,8 @@ import {
   ChevronDown,
   Check,
   Sun,
-  Moon
+  Moon,
+  Stethoscope
 } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 import { INDIAN_LANGUAGES } from '../data/translations';
@@ -33,6 +34,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     currentTheme,
     themeMode,
     toggleThemeMode,
+    activeTab,
+    setActiveTab,
     t, 
     setIsSearchOpen, 
     setIsProfileOpen, 
@@ -117,6 +120,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
             <span className="font-mono text-[11px]">ABHA: 91-4820-1928-3410</span>
             <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
           </div>
+
+          {/* Quick Doctor Portal Toggle */}
+          <button
+            onClick={() => {
+              if (activeTab === 'doctor-dashboard') {
+                setActiveTab('overview');
+              } else {
+                setActiveTab('doctor-dashboard');
+              }
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition active:scale-95 ${
+              activeTab === 'doctor-dashboard'
+                ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                : 'bg-emerald-950/30 hover:bg-emerald-950/60 text-emerald-300 border-emerald-500/40'
+            }`}
+            title="Switch between Patient Command Center and Doctor OPD Portal"
+          >
+            <Stethoscope className="w-3.5 h-3.5" />
+            <span>{activeTab === 'doctor-dashboard' ? 'Patient Portal' : 'Doctor Portal'}</span>
+          </button>
 
           {/* Day / Night Mode Switcher */}
           <button
