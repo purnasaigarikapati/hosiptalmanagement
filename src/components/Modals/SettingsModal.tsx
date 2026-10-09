@@ -10,9 +10,11 @@ import {
   Check, 
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  Palette
 } from 'lucide-react';
 import { useHealth } from '../../context/HealthContext';
+import { INDIAN_LANGUAGES } from '../../data/translations';
 
 export const SettingsModal: React.FC = () => {
   const { 
@@ -20,6 +22,10 @@ export const SettingsModal: React.FC = () => {
     setIsSettingsOpen, 
     language, 
     setLanguage, 
+    theme,
+    setTheme,
+    availableThemes,
+    currentTheme,
     addToast,
     t 
   } = useHealth();
@@ -43,7 +49,7 @@ export const SettingsModal: React.FC = () => {
       onClick={() => setIsSettingsOpen(false)}
     >
       <div 
-        className="w-full max-w-xl glass-panel-glow rounded-3xl border border-cyan-500/30 overflow-hidden shadow-2xl flex flex-col"
+        className="w-full max-w-2xl max-h-[90vh] glass-panel-glow rounded-3xl border border-cyan-500/30 overflow-hidden shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -55,7 +61,7 @@ export const SettingsModal: React.FC = () => {
             <div>
               <h3 className="text-lg font-bold text-white">{t.navSettings}</h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                AI Health Intelligence & Interface Configuration
+                AI Health Intelligence, Indian Languages & Theme Palette
               </p>
             </div>
           </div>
@@ -71,37 +77,87 @@ export const SettingsModal: React.FC = () => {
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-6 text-xs sm:text-sm">
           
-          {/* Language Selector */}
+          {/* Healthcare Theme Palette */}
           <div>
-            <label className="block text-xs font-mono uppercase text-slate-400 font-semibold mb-2 flex items-center gap-1.5">
-              <Globe className="w-4 h-4 text-cyan-400" /> Interface Language (భాష)
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                className={`p-3 rounded-2xl border text-left transition ${
-                  language === 'en'
-                    ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm'
-                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'
-                }`}
-              >
-                <p className="font-semibold text-sm">English</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Default clinical standard</p>
-              </button>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-mono uppercase text-slate-400 font-semibold flex items-center gap-1.5">
+                <Palette className="w-4 h-4 text-cyan-400" /> Color Theme (యూజర్-ఫ్రెండ్లీ థీమ్)
+              </label>
+              <span className="text-[11px] text-cyan-400 font-medium font-mono">
+                Active: {currentTheme.name}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {availableThemes.map((th) => {
+                const isSelected = theme === th.id;
+                return (
+                  <button
+                    key={th.id}
+                    type="button"
+                    onClick={() => setTheme(th.id)}
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between group ${
+                      isSelected
+                        ? 'bg-slate-800/95 border-cyan-400/70 shadow-glow-cyan ring-1 ring-cyan-400/30'
+                        : 'bg-slate-900/60 border-slate-800/80 hover:bg-slate-850 hover:border-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <div 
+                        className="w-5 h-5 rounded-full shadow transition duration-300 group-hover:scale-110" 
+                        style={{ backgroundColor: th.primaryColor, boxShadow: `0 0 10px ${th.glowColor}` }}
+                      />
+                      {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-white group-hover:text-cyan-300">
+                        {th.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 line-clamp-2 mt-0.5 leading-snug">
+                        {th.description}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-              <button
-                type="button"
-                onClick={() => setLanguage('te')}
-                className={`p-3 rounded-2xl border text-left transition ${
-                  language === 'te'
-                    ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm'
-                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white'
-                }`}
-              >
-                <p className="font-semibold text-sm">తెలుగు (Telugu)</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">ప్రాంతీయ భాషా మోడ్</p>
-              </button>
+          {/* Indian Regional Language Selector (12 State Languages) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-mono uppercase text-slate-400 font-semibold flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-cyan-400" /> Interface Language (భారతీయ భాషలు)
+              </label>
+              <span className="text-[11px] text-cyan-400 font-mono bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
+                12 State Languages
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-56 overflow-y-auto p-1 bg-slate-950/40 rounded-2xl border border-slate-800/80">
+              {INDIAN_LANGUAGES.map((langItem) => {
+                const isSelected = language === langItem.code;
+                return (
+                  <button
+                    key={langItem.code}
+                    type="button"
+                    onClick={() => setLanguage(langItem.code)}
+                    className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between group ${
+                      isSelected
+                        ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm'
+                        : 'bg-slate-900/60 border-slate-800/70 text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div className="min-w-0 pr-1">
+                      <p className="font-bold text-xs text-white group-hover:text-cyan-300 leading-tight">
+                        {langItem.nativeName}
+                      </p>
+                      <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                        {langItem.name} • {langItem.region.split('&')[0]}
+                      </p>
+                    </div>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

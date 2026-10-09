@@ -9,9 +9,13 @@ import {
   User, 
   Sparkles,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Palette,
+  ChevronDown,
+  Check
 } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
+import { INDIAN_LANGUAGES } from '../data/translations';
 
 interface NavbarProps {
   onToggleSidebar?: () => void;
@@ -21,6 +25,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const { 
     language, 
     setLanguage, 
+    theme,
+    setTheme,
+    availableThemes,
+    currentTheme,
     t, 
     setIsSearchOpen, 
     setIsProfileOpen, 
@@ -32,6 +40,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   } = useHealth();
 
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+
+  const activeLangMeta = INDIAN_LANGUAGES.find(l => l.code === language) || INDIAN_LANGUAGES[0];
 
   const unreadAlerts = insights.filter(i => i.reviewStatus === 'needs_attention');
 
@@ -102,31 +114,141 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
             <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
           </div>
 
-          {/* Language Toggle (English / Telugu) */}
-          <div className="flex items-center bg-slate-900/90 rounded-lg p-0.5 border border-slate-700/80">
+          {/* Theme Palette Switcher */}
+          <div className="relative">
             <button
-              onClick={() => setLanguage('en')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition ${
-                language === 'en'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-              title="English"
+              onClick={() => {
+                setShowThemeMenu(!showThemeMenu);
+                setShowLangMenu(false);
+                setShowNotifications(false);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-500/40 text-slate-200 transition text-xs font-medium"
+              title="Change Color Theme"
             >
-              <Globe className="w-3 h-3" />
-              <span>EN</span>
+              <div 
+                className="w-3.5 h-3.5 rounded-full shadow-sm ring-1 ring-white/20 transition duration-300" 
+                style={{ backgroundColor: currentTheme.primaryColor, boxShadow: `0 0 8px ${currentTheme.glowColor}` }}
+              />
+              <Palette className="w-3.5 h-3.5 text-slate-300" />
+              <span className="hidden sm:inline text-xs text-slate-300 font-medium">
+                {currentTheme.name.split(' ')[0]}
+              </span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
+
+            {showThemeMenu && (
+              <div className="absolute right-0 mt-2 w-72 sm:w-80 glass-panel-glow rounded-2xl p-3 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 border border-cyan-500/30">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-cyan-400" />
+                    <span className="font-semibold text-xs text-white">Theme Palette</span>
+                  </div>
+                  <span className="text-[10px] text-cyan-400 font-mono bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
+                    6 Healthcare Themes
+                  </span>
+                </div>
+
+                <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1">
+                  {availableThemes.map((themeItem) => {
+                    const isSelected = theme === themeItem.id;
+                    return (
+                      <button
+                        key={themeItem.id}
+                        onClick={() => {
+                          setTheme(themeItem.id);
+                          setShowThemeMenu(false);
+                        }}
+                        className={`w-full p-2.5 rounded-xl text-left transition flex items-center justify-between group ${
+                          isSelected
+                            ? 'bg-slate-800/90 border border-cyan-400/60 text-white shadow-sm'
+                            : 'bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                          <div 
+                            className="w-4 h-4 rounded-full shrink-0 shadow transition duration-300 group-hover:scale-110" 
+                            style={{ backgroundColor: themeItem.primaryColor, boxShadow: `0 0 10px ${themeItem.glowColor}` }}
+                          />
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-white group-hover:text-cyan-300">
+                              {themeItem.name}
+                            </p>
+                            <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                              {themeItem.description}
+                            </p>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Indian Languages Selector (12 State Languages) */}
+          <div className="relative">
             <button
-              onClick={() => setLanguage('te')}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
-                language === 'te'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-              title="తెలుగు (Telugu)"
+              onClick={() => {
+                setShowLangMenu(!showLangMenu);
+                setShowThemeMenu(false);
+                setShowNotifications(false);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-500/40 text-slate-200 transition text-xs font-medium"
+              title="Select Indian Language"
             >
-              <span>తెలుగు</span>
+              <Globe className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="font-semibold text-white max-w-[75px] truncate">
+                {activeLangMeta.nativeName}
+              </span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
+
+            {showLangMenu && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 glass-panel-glow rounded-2xl p-3 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 border border-cyan-500/30">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-cyan-400" />
+                    <span className="font-semibold text-xs text-white">Indian Regional Languages</span>
+                  </div>
+                  <span className="text-[10px] text-cyan-400 font-mono bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
+                    12 State Languages
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-80 overflow-y-auto pr-1">
+                  {INDIAN_LANGUAGES.map((langItem) => {
+                    const isSelected = language === langItem.code;
+                    return (
+                      <button
+                        key={langItem.code}
+                        onClick={() => {
+                          setLanguage(langItem.code);
+                          setShowLangMenu(false);
+                        }}
+                        className={`p-2.5 rounded-xl text-left transition flex items-center justify-between group ${
+                          isSelected
+                            ? 'bg-cyan-500/20 border border-cyan-400/60 text-white shadow-sm'
+                            : 'bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800/80 text-slate-300'
+                        }`}
+                      >
+                        <div className="min-w-0 pr-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-white group-hover:text-cyan-300">
+                              {langItem.nativeName}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">({langItem.name})</span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 truncate mt-0.5">{langItem.region}</p>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Notifications Popover Trigger */}

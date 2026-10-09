@@ -10,9 +10,12 @@ import {
   ChatMessage, 
   LabTest,
   ExtractedDocumentData,
-  User
+  User,
+  ThemeColor,
+  ThemeOption
 } from '../types/health';
 import { translations, Language } from '../data/translations';
+import { THEMES, getThemeConfig } from '../data/themes';
 
 interface Toast {
   id: string;
@@ -25,6 +28,12 @@ interface HealthContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: typeof translations['en'];
+
+  // Theme State
+  theme: ThemeColor;
+  setTheme: (theme: ThemeColor) => void;
+  currentTheme: ThemeOption;
+  availableThemes: ThemeOption[];
   
   // Auth State
   user: User | null;
@@ -80,7 +89,31 @@ interface HealthContextType {
 const HealthContext = createContext<HealthContextType | undefined>(undefined);
 
 export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(() => {
+    return (localStorage.getItem('altrix_lang') as Language) || 'en';
+  });
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('altrix_lang', lang);
+  };
+
+  const [theme, setThemeState] = useState<ThemeColor>(() => {
+    return (localStorage.getItem('altrix_theme') as ThemeColor) || 'cyan';
+  });
+
+  const setTheme = (newTheme: ThemeColor) => {
+    setThemeState(newTheme);
+    localStorage.setItem('altrix_theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const currentTheme = getThemeConfig(theme);
+
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [activeOrgan, setActiveOrgan] = useState<OrganSystem | null>(null);
   const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
@@ -836,7 +869,7 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  const t = translations[language];
+  const t = translations[language] || translations.en;
 
   return (
     <HealthContext.Provider
@@ -844,6 +877,10 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         language,
         setLanguage,
         t,
+        theme,
+        setTheme,
+        currentTheme,
+        availableThemes: THEMES,
         user,
         isAuthenticated,
         authModalOpen,

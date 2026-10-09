@@ -4,6 +4,57 @@
 
 :root {
   color-scheme: dark;
+  --theme-primary: #00f2fe;
+  --theme-primary-rgb: 0, 242, 254;
+  --theme-primary-hover: #06b6d4;
+  --theme-glow: rgba(0, 242, 254, 0.35);
+  --theme-border: rgba(0, 242, 254, 0.25);
+  --theme-bg-subtle: rgba(0, 242, 254, 0.08);
+}
+
+[data-theme="emerald"] {
+  --theme-primary: #10b981;
+  --theme-primary-rgb: 16, 185, 129;
+  --theme-primary-hover: #059669;
+  --theme-glow: rgba(16, 185, 129, 0.35);
+  --theme-border: rgba(16, 185, 129, 0.25);
+  --theme-bg-subtle: rgba(16, 185, 129, 0.08);
+}
+
+[data-theme="sapphire"] {
+  --theme-primary: #3b82f6;
+  --theme-primary-rgb: 59, 130, 246;
+  --theme-primary-hover: #2563eb;
+  --theme-glow: rgba(59, 130, 246, 0.35);
+  --theme-border: rgba(59, 130, 246, 0.25);
+  --theme-bg-subtle: rgba(59, 130, 246, 0.08);
+}
+
+[data-theme="amethyst"] {
+  --theme-primary: #a855f7;
+  --theme-primary-rgb: 168, 85, 247;
+  --theme-primary-hover: #9333ea;
+  --theme-glow: rgba(168, 85, 247, 0.35);
+  --theme-border: rgba(168, 85, 247, 0.25);
+  --theme-bg-subtle: rgba(168, 85, 247, 0.08);
+}
+
+[data-theme="amber"] {
+  --theme-primary: #f59e0b;
+  --theme-primary-rgb: 245, 158, 11;
+  --theme-primary-hover: #d97706;
+  --theme-glow: rgba(245, 158, 11, 0.35);
+  --theme-border: rgba(245, 158, 11, 0.25);
+  --theme-bg-subtle: rgba(245, 158, 11, 0.08);
+}
+
+[data-theme="rose"] {
+  --theme-primary: #f43f5e;
+  --theme-primary-rgb: 244, 63, 94;
+  --theme-primary-hover: #e11d48;
+  --theme-glow: rgba(244, 63, 94, 0.35);
+  --theme-border: rgba(244, 63, 94, 0.25);
+  --theme-bg-subtle: rgba(244, 63, 94, 0.08);
 }
 
 body {
@@ -13,10 +64,11 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 10% 30%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 70%, rgba(139, 92, 246, 0.05) 0%, transparent 45%);
+    radial-gradient(circle at 50% 0%, rgba(var(--theme-primary-rgb), 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 10% 30%, rgba(59, 130, 246, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 70%, rgba(139, 92, 246, 0.04) 0%, transparent 45%);
   background-attachment: fixed;
+  transition: background-color 0.4s ease;
 }
 
 /* Custom Scrollbars */
@@ -28,11 +80,11 @@ body {
   background: rgba(11, 19, 38, 0.5);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.25);
+  background: rgba(var(--theme-primary-rgb), 0.3);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.5);
+  background: rgba(var(--theme-primary-rgb), 0.6);
 }
 
 /* Glassmorphism & Cyber Card Utilities */
@@ -40,25 +92,44 @@ body {
   background: rgba(11, 19, 38, 0.72);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(var(--theme-primary-rgb), 0.16);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: border-color 0.3s ease;
 }
 
 .glass-panel-glow {
   background: rgba(11, 19, 38, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 242, 254, 0.3);
-  box-shadow: 0 0 25px rgba(0, 242, 254, 0.12), 0 10px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(var(--theme-primary-rgb), 0.3);
+  box-shadow: 0 0 25px rgba(var(--theme-primary-rgb), 0.12), 0 10px 40px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .glass-card-hover {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-card-hover:hover {
-  border-color: rgba(56, 189, 248, 0.4);
+  border-color: rgba(var(--theme-primary-rgb), 0.45);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(0, 242, 254, 0.18);
+  box-shadow: 0 12px 30px -10px rgba(var(--theme-primary-rgb), 0.2);
+}
+
+/* Dynamic Theme Utilities */
+.theme-glow-accent {
+  box-shadow: 0 0 20px var(--theme-glow);
+}
+
+.theme-border-active {
+  border-color: var(--theme-primary) !important;
+}
+
+.theme-text-accent {
+  color: var(--theme-primary) !important;
+}
+
+.theme-bg-accent {
+  background-color: var(--theme-bg-subtle) !important;
 }
 
 /* Subtle glowing circuit lines */
@@ -79,13 +150,13 @@ body {
 .cyber-grid {
   background-size: 32px 32px;
   background-image: 
-    linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(var(--theme-primary-rgb), 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--theme-primary-rgb), 0.04) 1px, transparent 1px);
 }
 
 /* Glowing text */
 .text-glow-cyan {
-  text-shadow: 0 0 12px rgba(0, 242, 254, 0.5);
+  text-shadow: 0 0 12px var(--theme-glow);
 }
 .text-glow-teal {
   text-shadow: 0 0 12px rgba(0, 245, 212, 0.5);

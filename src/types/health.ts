@@ -147,3 +147,18 @@ export interface User {
   lastLogin?: string;
 }
 
+export type ThemeColor = 'cyan' | 'emerald' | 'sapphire' | 'amethyst' | 'amber' | 'rose';
+
+export interface ThemeOption {
+  id: ThemeColor;
+  name: string;
+  description: string;
+  primaryColor: string;
+  glowColor: string;
+  previewClass: string;
+  badgeBg: string;
+  badgeBorder: string;
+  badgeText: string;
+}
+
+
