@@ -12,7 +12,8 @@ import {
   ExtractedDocumentData,
   User,
   ThemeColor,
-  ThemeOption
+  ThemeOption,
+  ThemeMode
 } from '../types/health';
 import { translations, Language } from '../data/translations';
 import { THEMES, getThemeConfig } from '../data/themes';
@@ -29,11 +30,14 @@ interface HealthContextType {
   setLanguage: (lang: Language) => void;
   t: typeof translations['en'];
 
-  // Theme State
+  // Theme & Mode State
   theme: ThemeColor;
   setTheme: (theme: ThemeColor) => void;
   currentTheme: ThemeOption;
   availableThemes: ThemeOption[];
+  themeMode: ThemeMode;
+  setThemeMode: (mode: ThemeMode) => void;
+  toggleThemeMode: () => void;
   
   // Auth State
   user: User | null;
@@ -108,9 +112,25 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
+  const [themeMode, setThemeModeState] = useState<ThemeMode>(() => {
+    return (localStorage.getItem('altrix_mode') as ThemeMode) || 'night';
+  });
+
+  const setThemeMode = (mode: ThemeMode) => {
+    setThemeModeState(mode);
+    localStorage.setItem('altrix_mode', mode);
+    document.documentElement.setAttribute('data-mode', mode);
+  };
+
+  const toggleThemeMode = () => {
+    const nextMode: ThemeMode = themeMode === 'night' ? 'day' : 'night';
+    setThemeMode(nextMode);
+  };
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    document.documentElement.setAttribute('data-mode', themeMode);
+  }, [theme, themeMode]);
 
   const currentTheme = getThemeConfig(theme);
 
@@ -881,6 +901,9 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setTheme,
         currentTheme,
         availableThemes: THEMES,
+        themeMode,
+        setThemeMode,
+        toggleThemeMode,
         user,
         isAuthenticated,
         authModalOpen,

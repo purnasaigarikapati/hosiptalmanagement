@@ -4,6 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { initPostgresTables, query, isPostgresConfigured } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -603,8 +604,40 @@ app.get('/api/records', (req, res) => {
   });
 });
 
+// Database Health & Status (PostgreSQL on Render / Fallback)
+app.get('/api/db/status', async (req, res) => {
+  if (isPostgresConfigured) {
+    try {
+      const dbRes = await query('SELECT COUNT(*) FROM medical_records');
+      const count = dbRes ? parseInt(dbRes.rows[0].count, 10) : 0;
+      res.json({
+        configured: true,
+        provider: 'PostgreSQL (Render Cloud)',
+        status: 'Connected',
+        recordCount: count,
+        urlConfigured: true
+      });
+    } catch (err) {
+      res.json({
+        configured: true,
+        provider: 'PostgreSQL',
+        status: 'Connection Error (In-Memory Fallback Active)',
+        error: err.message,
+        recordCount: medicalRecords.length
+      });
+    }
+  } else {
+    res.json({
+      configured: false,
+      provider: 'In-Memory Clinical Graph (Local / Demo)',
+      status: 'Active (Deploy to Render with DATABASE_URL to enable PostgreSQL)',
+      recordCount: medicalRecords.length
+    });
+  }
+});
+
 // Create new medical record
-app.post('/api/records', (req, res) => {
+app.post('/api/records', async (req, res) => {
   const newRecord = {
     id: `rec-${Date.now().toString().slice(-4)}`,
     title: req.body.title || 'Extracted Clinical Record',
@@ -623,6 +656,35 @@ app.post('/api/records', (req, res) => {
   };
 
   medicalRecords.unshift(newRecord);
+
+  // Sync to PostgreSQL if connected
+  if (isPostgresConfigured) {
+    try {
+      await query(`
+        INSERT INTO medical_records 
+        (id, title, category, organ_system, record_date, doctor, facility, document_type, file_name, file_size, file_type, verification_status, summary, tests)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      `, [
+        newRecord.id,
+        newRecord.title,
+        newRecord.category,
+        newRecord.organSystem,
+        newRecord.date,
+        newRecord.doctor,
+        newRecord.facility,
+        newRecord.documentType,
+        newRecord.fileName,
+        newRecord.fileSize,
+        newRecord.fileType,
+        newRecord.verificationStatus,
+        newRecord.summary,
+        JSON.stringify(newRecord.tests || [])
+      ]);
+      console.log(`[PostgreSQL] Persisted record ${newRecord.id} to medical_records table.`);
+    } catch (dbErr) {
+      console.error('[PostgreSQL] Error persisting record to database:', dbErr.message);
+    }
+  }
 
   // Add event to timeline
   timelineEvents.unshift({
@@ -914,6 +976,12 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`[ALTRIX HEALTH] Backend Intelligence Server running on http://localhost:${PORT}`);
+  if (isPostgresConfigured) {
+    console.log('[ALTRIX HEALTH] PostgreSQL detected via DATABASE_URL. Initializing schema & tables...');
+    await initPostgresTables(medicalRecords);
+  } else {
+    console.log('[ALTRIX HEALTH] Running in In-Memory / Local Storage mode. To use PostgreSQL on Render, set DATABASE_URL.');
+  }
 });

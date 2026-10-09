@@ -12,7 +12,9 @@ import {
   AlertCircle,
   Palette,
   ChevronDown,
-  Check
+  Check,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 import { INDIAN_LANGUAGES } from '../data/translations';
@@ -29,6 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     setTheme,
     availableThemes,
     currentTheme,
+    themeMode,
+    toggleThemeMode,
     t, 
     setIsSearchOpen, 
     setIsProfileOpen, 
@@ -113,6 +117,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
             <span className="font-mono text-[11px]">ABHA: 91-4820-1928-3410</span>
             <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
           </div>
+
+          {/* Day / Night Mode Switcher */}
+          <button
+            onClick={toggleThemeMode}
+            className="flex items-center justify-center p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-500/40 text-slate-200 transition text-xs shadow-sm hover:scale-105 active:scale-95"
+            title={themeMode === 'night' ? 'Switch to Day Mode (లైట్ మోడ్)' : 'Switch to Night Mode (డార్క్ మోడ్)'}
+            aria-label="Toggle Day / Night Mode"
+          >
+            {themeMode === 'night' ? (
+              <Sun className="w-4 h-4 text-amber-400 hover:text-amber-300 transition" />
+            ) : (
+              <Moon className="w-4 h-4 text-cyan-500 hover:text-cyan-600 transition" />
+            )}
+          </button>
 
           {/* Theme Palette Switcher */}
           <div className="relative">

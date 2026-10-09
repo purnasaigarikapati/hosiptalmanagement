@@ -149,6 +149,8 @@ export interface User {
 
 export type ThemeColor = 'cyan' | 'emerald' | 'sapphire' | 'amethyst' | 'amber' | 'rose';
 
+export type ThemeMode = 'night' | 'day';
+
 export interface ThemeOption {
   id: ThemeColor;
   name: string;
@@ -160,5 +162,7 @@ export interface ThemeOption {
   badgeBorder: string;
   badgeText: string;
 }
+
+
 
 

@@ -11,7 +11,9 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Palette
+  Palette,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useHealth } from '../../context/HealthContext';
 import { INDIAN_LANGUAGES } from '../../data/translations';
@@ -26,6 +28,8 @@ export const SettingsModal: React.FC = () => {
     setTheme,
     availableThemes,
     currentTheme,
+    themeMode,
+    setThemeMode,
     addToast,
     t 
   } = useHealth();
@@ -77,6 +81,62 @@ export const SettingsModal: React.FC = () => {
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-6 text-xs sm:text-sm">
           
+          {/* Day & Night Display Mode */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-mono uppercase text-slate-400 font-semibold flex items-center gap-1.5">
+                {themeMode === 'day' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-400" />}
+                Display Mode (డే / నైట్ మోడ్)
+              </label>
+              <span className="text-[11px] text-cyan-400 font-medium font-mono uppercase">
+                {themeMode === 'day' ? '☀️ Day (Light)' : '🌙 Night (Dark)'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setThemeMode('day')}
+                className={`p-3.5 rounded-2xl border text-left transition flex items-center justify-between group ${
+                  themeMode === 'day'
+                    ? 'bg-amber-500/15 border-amber-400 text-slate-100 shadow-sm ring-1 ring-amber-400/40'
+                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-400">
+                    <Sun className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-white">Day Mode (లైట్ మోడ్)</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Crisp, clean clinical contrast</p>
+                  </div>
+                </div>
+                {themeMode === 'day' && <Check className="w-4 h-4 text-amber-400" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setThemeMode('night')}
+                className={`p-3.5 rounded-2xl border text-left transition flex items-center justify-between group ${
+                  themeMode === 'night'
+                    ? 'bg-cyan-500/15 border-cyan-400 text-slate-100 shadow-sm ring-1 ring-cyan-400/40'
+                    : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-cyan-400/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400">
+                    <Moon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-white">Night Mode (డార్క్ మోడ్)</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Midnight deep medical intelligence</p>
+                  </div>
+                </div>
+                {themeMode === 'night' && <Check className="w-4 h-4 text-cyan-400" />}
+              </button>
+            </div>
+          </div>
+
           {/* Healthcare Theme Palette */}
           <div>
             <div className="flex items-center justify-between mb-2">

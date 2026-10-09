@@ -13,7 +13,9 @@ import {
   ChevronRight,
   ShieldAlert,
   LogIn,
-  LogOut
+  LogOut,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 
@@ -42,7 +44,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     isAuthenticated,
     setAuthModalOpen,
     setAuthMode,
-    logout
+    logout,
+    themeMode,
+    toggleThemeMode
   } = useHealth();
 
   const unreadCount = insights.filter(i => i.reviewStatus === 'needs_attention').length;
@@ -194,6 +198,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {!collapsed && <span className="tracking-wide">{t.signIn}</span>}
             </button>
           )}
+
+          {/* Day / Night Toggle in Sidebar */}
+          <button
+            onClick={toggleThemeMode}
+            className={`w-full flex items-center justify-between py-2 px-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 text-slate-300 transition text-xs ${
+              collapsed ? 'justify-center px-0' : ''
+            }`}
+            title={themeMode === 'night' ? 'Switch to Day Mode (లైట్ మోడ్)' : 'Switch to Night Mode (డార్క్ మోడ్)'}
+          >
+            <div className="flex items-center gap-2">
+              {themeMode === 'night' ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              )}
+              {!collapsed && (
+                <span className="text-[11px] font-medium text-slate-300">
+                  {themeMode === 'night' ? 'Day Mode' : 'Night Mode'}
+                </span>
+              )}
+            </div>
+            {!collapsed && (
+              <span className="text-[10px] text-slate-400 font-mono uppercase bg-slate-800/60 px-1.5 py-0.5 rounded">
+                {themeMode === 'night' ? 'Light' : 'Dark'}
+              </span>
+            )}
+          </button>
 
           {/* Collapse/Expand Toggle (Desktop only) */}
           <div className="hidden lg:flex items-center justify-between pt-1">
