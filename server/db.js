@@ -114,6 +114,28 @@ export async function initPostgresTables(initialRecords = []) {
         summary TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS appointments (
+        id VARCHAR(64) PRIMARY KEY,
+        token_number VARCHAR(32) NOT NULL,
+        token_code VARCHAR(64) NOT NULL,
+        patient_name VARCHAR(255) NOT NULL,
+        age INT NOT NULL,
+        gender VARCHAR(32) NOT NULL,
+        phone VARCHAR(64) NOT NULL,
+        weight VARCHAR(32) NOT NULL,
+        doctor_id VARCHAR(64) NOT NULL,
+        doctor_name VARCHAR(255) NOT NULL,
+        doctor_specialty VARCHAR(255) NOT NULL,
+        doctor_room VARCHAR(64),
+        appointment_date DATE NOT NULL,
+        time_slot VARCHAR(64) NOT NULL,
+        health_description TEXT,
+        queue_position INT DEFAULT 1,
+        estimated_wait_minutes INT DEFAULT 15,
+        status VARCHAR(32) DEFAULT 'confirmed',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     // Check if initial records exist

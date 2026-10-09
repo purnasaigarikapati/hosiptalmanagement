@@ -964,6 +964,136 @@ How can I help you explore your records today? You can ask me to:
   });
 });
 
+// 12. Patient Hospital Appointments & Attendance Tokens
+let appointments = [
+  {
+    id: 'apt-001',
+    tokenNumber: 'TK #07',
+    tokenCode: 'ALTRIX-TK-0842',
+    patientName: 'Sai Garikapati',
+    age: 28,
+    gender: 'Male',
+    phone: '+91 98480 12345',
+    weight: '72 kg',
+    doctor: {
+      id: 'doc-1',
+      name: 'Dr. Ramesh Babu, MD, DM',
+      specialty: 'Senior Cardiologist & Interventionalist',
+      hospital: 'Apollo Hospitals Jubilee Hills',
+      room: 'OPD Cabin #304, 3rd Floor',
+      consultationFee: '₹1,200',
+      timeSlots: ['09:30 AM', '10:15 AM', '11:00 AM', '04:30 PM', '05:15 PM'],
+      avatar: 'RB',
+      rating: 4.9,
+      experience: '18+ Years',
+      days: 'Mon, Wed, Fri, Sat'
+    },
+    date: '2026-10-10',
+    timeSlot: '10:15 AM',
+    healthDescription: 'Seeking routine cardiovascular & metabolic checkup. Reviewing borderline cholesterol and ECG tracing.',
+    queuePosition: 7,
+    estimatedWaitMinutes: 20,
+    status: 'confirmed',
+    createdAt: new Date().toISOString()
+  }
+];
+
+app.get('/api/appointments', async (req, res) => {
+  if (isPostgresConfigured) {
+    try {
+      const { rows } = await query('SELECT * FROM appointments ORDER BY created_at DESC');
+      if (rows && rows.length > 0) {
+        return res.json(rows.map(r => ({
+          id: r.id,
+          tokenNumber: r.token_number,
+          tokenCode: r.token_code,
+          patientName: r.patient_name,
+          age: r.age,
+          gender: r.gender,
+          phone: r.phone,
+          weight: r.weight,
+          doctor: {
+            id: r.doctor_id,
+            name: r.doctor_name,
+            specialty: r.doctor_specialty,
+            room: r.doctor_room
+          },
+          date: r.appointment_date,
+          timeSlot: r.time_slot,
+          healthDescription: r.health_description,
+          queuePosition: r.queue_position,
+          estimatedWaitMinutes: r.estimated_wait_minutes,
+          status: r.status,
+          createdAt: r.created_at
+        })));
+      }
+    } catch (e) {
+      console.error('[PostgreSQL] Failed to fetch appointments:', e.message);
+    }
+  }
+  res.json(appointments);
+});
+
+app.post('/api/appointments', async (req, res) => {
+  const data = req.body;
+  const tokenNumber = `TK #${String(Math.floor(Math.random() * 20) + 1).padStart(2, '0')}`;
+  const tokenCode = `ALTRIX-TK-${Math.floor(1000 + Math.random() * 9000)}`;
+  const id = `apt-${Date.now()}`;
+  const newAppointment = {
+    id,
+    tokenNumber,
+    tokenCode,
+    patientName: data.patientName || 'Patient',
+    age: data.age || 28,
+    gender: data.gender || 'Male',
+    phone: data.phone || '+91 98480 12345',
+    weight: data.weight || '70 kg',
+    doctor: data.doctor,
+    date: data.date,
+    timeSlot: data.timeSlot,
+    healthDescription: data.healthDescription || 'Consultation request.',
+    queuePosition: Math.floor(Math.random() * 8) + 1,
+    estimatedWaitMinutes: Math.floor(Math.random() * 25) + 10,
+    status: 'confirmed',
+    createdAt: new Date().toISOString()
+  };
+
+  appointments.unshift(newAppointment);
+
+  if (isPostgresConfigured) {
+    try {
+      await query(`
+        INSERT INTO appointments 
+        (id, token_number, token_code, patient_name, age, gender, phone, weight, doctor_id, doctor_name, doctor_specialty, doctor_room, appointment_date, time_slot, health_description, queue_position, estimated_wait_minutes, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+      `, [
+        id, tokenNumber, tokenCode, newAppointment.patientName, newAppointment.age, newAppointment.gender,
+        newAppointment.phone, newAppointment.weight, newAppointment.doctor.id, newAppointment.doctor.name,
+        newAppointment.doctor.specialty, newAppointment.doctor.room || '', newAppointment.date,
+        newAppointment.timeSlot, newAppointment.healthDescription, newAppointment.queuePosition,
+        newAppointment.estimatedWaitMinutes, newAppointment.status
+      ]);
+    } catch (e) {
+      console.error('[PostgreSQL] Failed to insert appointment:', e.message);
+    }
+  }
+
+  res.status(201).json(newAppointment);
+});
+
+app.delete('/api/appointments/:id', async (req, res) => {
+  const { id } = req.params;
+  appointments = appointments.filter(a => a.id !== id);
+  if (isPostgresConfigured) {
+    try {
+      await query('DELETE FROM appointments WHERE id = $1', [id]);
+    } catch (e) {
+      console.error('[PostgreSQL] Failed to delete appointment:', e.message);
+    }
+  }
+  res.json({ success: true, message: 'Appointment cancelled successfully' });
+});
+
 // Serve built frontend assets
 const distPath = path.join(__dirname, '..', 'dist');
 if (fs.existsSync(distPath)) {

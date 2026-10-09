@@ -164,6 +164,41 @@ export interface ThemeOption {
   badgeText: string;
 }
 
+export interface Doctor {
+  id: string;
+  name: string;
+  specialty: string;
+  department: string;
+  hospital: string;
+  roomNumber: string;
+  experience: string;
+  rating: number;
+  consultationFee: string;
+  avatar: string;
+  availableDays: string[];
+  timeSlots: string[];
+}
+
+export interface PatientAppointment {
+  id: string;
+  tokenNumber: string;
+  tokenCode: string;
+  patientName: string;
+  age: number;
+  gender: 'Male' | 'Female' | 'Other';
+  phone: string;
+  weight: string;
+  doctor: Doctor;
+  date: string;
+  timeSlot: string;
+  healthDescription: string;
+  status: 'Confirmed' | 'Completed' | 'Cancelled';
+  queuePosition: number;
+  estimatedWaitMinutes: number;
+  createdAt: string;
+}
+
+
 
 
 

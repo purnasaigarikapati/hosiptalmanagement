@@ -8,12 +8,13 @@ import {
   Activity, 
   Flame, 
   Wind,
-  CheckCircle2
+  CheckCircle2,
+  CalendarCheck
 } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 
 export const HeroSection: React.FC = () => {
-  const { t, scrollToSection } = useHealth();
+  const { t, scrollToSection, setActiveTab } = useHealth();
 
   return (
     <div className="relative pt-2 pb-6">
@@ -66,6 +67,17 @@ export const HeroSection: React.FC = () => {
         >
           <Clock className="w-4 h-4 text-cyan-400 group-hover:rotate-12 transition" />
           <span>{t.exploreTimeline}</span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('appointments');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          className="flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-teal-950/40 hover:bg-teal-900/50 text-teal-200 hover:text-white border border-teal-500/40 hover:border-teal-400 font-semibold text-sm transition duration-200 group active:scale-95 shadow-[0_0_20px_rgba(20,184,166,0.15)] hover:shadow-[0_0_25px_rgba(20,184,166,0.3)]"
+        >
+          <CalendarCheck className="w-4 h-4 text-teal-400 group-hover:scale-110 transition" />
+          <span>{t.navAppointments || 'Patient Appointment'}</span>
         </button>
       </div>
 

@@ -15,7 +15,8 @@ import {
   LogIn,
   LogOut,
   Sun,
-  Moon
+  Moon,
+  CalendarCheck
 } from 'lucide-react';
 import { useHealth } from '../context/HealthContext';
 
@@ -37,6 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setActiveTab, 
     t, 
     insights,
+    appointments,
     scrollToSection,
     setIsSettingsOpen,
     setIsProfileOpen,
@@ -53,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems = [
     { id: 'overview', label: t.navOverview, icon: LayoutDashboard },
+    { id: 'appointments', label: t.navAppointments || 'Patient Appointment', icon: CalendarCheck, badge: appointments.length > 0 ? `${appointments.length}` : undefined, badgeColor: 'cyan' },
     { id: 'records', label: t.navRecords, icon: FileText, badge: '7' },
     { id: 'insights', label: t.navInsights, icon: Sparkles, badge: unreadCount > 0 ? `${unreadCount}` : undefined, badgeColor: 'rose' },
     { id: 'timeline', label: t.navTimeline, icon: Clock },
@@ -67,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       item.action();
     } else {
       setActiveTab(item.id);
-      if (item.id === 'overview') {
+      if (item.id === 'appointments' || item.id === 'overview') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (item.id === 'timeline') {
         scrollToSection('timeline-section');

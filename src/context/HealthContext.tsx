@@ -13,10 +13,13 @@ import {
   User,
   ThemeColor,
   ThemeOption,
-  ThemeMode
+  ThemeMode,
+  PatientAppointment,
+  Doctor
 } from '../types/health';
 import { translations, Language } from '../data/translations';
 import { THEMES, getThemeConfig } from '../data/themes';
+import { DOCTORS } from '../data/doctors';
 
 interface Toast {
   id: string;
@@ -39,6 +42,12 @@ interface HealthContextType {
   setThemeMode: (mode: ThemeMode) => void;
   toggleThemeMode: () => void;
   
+  // Appointments System
+  appointments: PatientAppointment[];
+  doctors: Doctor[];
+  bookAppointment: (data: Omit<PatientAppointment, 'id' | 'tokenNumber' | 'tokenCode' | 'status' | 'queuePosition' | 'estimatedWaitMinutes' | 'createdAt'>) => PatientAppointment;
+  cancelAppointment: (id: string) => void;
+
   // Auth State
   user: User | null;
   isAuthenticated: boolean;
@@ -142,6 +151,67 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+
+  // Hospital Appointments System
+  const INITIAL_APPOINTMENTS: PatientAppointment[] = [
+    {
+      id: 'apt-001',
+      tokenNumber: 'ALTRIX-TK-0842',
+      tokenCode: 'TK #07',
+      patientName: 'Sai Garikapati',
+      age: 28,
+      gender: 'Male',
+      phone: '+91 98480 12345',
+      weight: '72 kg',
+      doctor: DOCTORS[0], // Dr. Arvind Rao
+      date: '2026-10-12',
+      timeSlot: '10:15 AM',
+      healthDescription: 'Follow-up consultation for borderline LDL cholesterol (138 mg/dL) and Metformin ER glycemic tolerance. Experiencing occasional mild fatigue.',
+      status: 'Confirmed',
+      queuePosition: 3,
+      estimatedWaitMinutes: 15,
+      createdAt: '2026-10-09'
+    }
+  ];
+
+  const [appointments, setAppointments] = useState<PatientAppointment[]>(() => {
+    try {
+      const saved = localStorage.getItem('altrix_appointments');
+      return saved ? JSON.parse(saved) : INITIAL_APPOINTMENTS;
+    } catch {
+      return INITIAL_APPOINTMENTS;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('altrix_appointments', JSON.stringify(appointments));
+    } catch {}
+  }, [appointments]);
+
+  const bookAppointment = (data: Omit<PatientAppointment, 'id' | 'tokenNumber' | 'tokenCode' | 'status' | 'queuePosition' | 'estimatedWaitMinutes' | 'createdAt'>): PatientAppointment => {
+    const tokenRandom = Math.floor(1000 + Math.random() * 9000);
+    const queuePos = Math.floor(1 + Math.random() * 8);
+    const newAppointment: PatientAppointment = {
+      ...data,
+      id: `apt-${Date.now().toString().slice(-4)}`,
+      tokenNumber: `ALTRIX-TK-${tokenRandom}`,
+      tokenCode: `TK #${String(queuePos).padStart(2, '0')}`,
+      status: 'Confirmed',
+      queuePosition: queuePos,
+      estimatedWaitMinutes: queuePos * 12,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    setAppointments(prev => [newAppointment, ...prev]);
+    addToast('success', 'Appointment Token Generated', `Token ${newAppointment.tokenCode} generated for ${newAppointment.doctor.name}!`);
+    return newAppointment;
+  };
+
+  const cancelAppointment = (id: string) => {
+    setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'Cancelled' as const } : a));
+    addToast('info', 'Appointment Cancelled', 'Your hospital token has been cancelled.');
+  };
 
   // Authentication State
   const DEFAULT_USER: User = {
@@ -904,6 +974,10 @@ export const HealthProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         themeMode,
         setThemeMode,
         toggleThemeMode,
+        appointments,
+        doctors: DOCTORS,
+        bookAppointment,
+        cancelAppointment,
         user,
         isAuthenticated,
         authModalOpen,

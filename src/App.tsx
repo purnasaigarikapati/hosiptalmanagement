@@ -17,6 +17,7 @@ import { ProfileModal } from './components/Modals/ProfileModal';
 import { SettingsModal } from './components/Modals/SettingsModal';
 import { AuthModal } from './components/Auth/AuthModal';
 import { AuthFullPage } from './components/Auth/AuthFullPage';
+import { PatientAppointmentsPage } from './components/Appointments/PatientAppointmentsPage';
 import { ToastContainer } from './components/ToastContainer';
 import { useHealth } from './context/HealthContext';
 import { Activity, Shield, Sparkles, Heart } from 'lucide-react';
@@ -25,7 +26,7 @@ export const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
   const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname);
-  const { t } = useHealth();
+  const { t, activeTab, setActiveTab } = useHealth();
 
   React.useEffect(() => {
     const handlePopState = () => setCurrentPath(window.location.pathname);
@@ -81,42 +82,55 @@ export const App: React.FC = () => {
             sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
           }`}
         >
-          {/* 1. Hero Section: Greeting, Editorial Headline, CTAs, Vitals */}
-          <HeroSection />
+          {activeTab === 'appointments' || currentPath === '/appointments' ? (
+            <PatientAppointmentsPage 
+              onBackToDashboard={() => {
+                setActiveTab('overview');
+                if (currentPath === '/appointments') {
+                  navigateTo('/');
+                }
+              }} 
+            />
+          ) : (
+            <>
+              {/* 1. Hero Section: Greeting, Editorial Headline, CTAs, Vitals */}
+              <HeroSection />
 
-          {/* 2. Signature Hero: Living Health Map Centerpiece + Floating AI Health Copilot */}
-          <div id="living-health-map-section" className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-            {/* Centerpiece: Living Health Map (7 cols on desktop) */}
-            <div className="xl:col-span-7 2xl:col-span-8">
-              <LivingHealthMap />
-            </div>
+              {/* 2. Signature Hero: Living Health Map Centerpiece + Floating AI Health Copilot */}
+              <div id="living-health-map-section" className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                {/* Centerpiece: Living Health Map (7 cols on desktop) */}
+                <div className="xl:col-span-7 2xl:col-span-8">
+                  <LivingHealthMap />
+                </div>
 
-            {/* Floating AI Health Copilot alongside it (5 cols on desktop) */}
-            <div className="xl:col-span-5 2xl:col-span-4 sticky top-24">
-              <FloatingCopilot />
-            </div>
-          </div>
+                {/* Floating AI Health Copilot alongside it (5 cols on desktop) */}
+                <div className="xl:col-span-5 2xl:col-span-4 sticky top-24">
+                  <FloatingCopilot />
+                </div>
+              </div>
 
-          {/* 3. Smart Health Overview: 4 Distinct Metric Cards */}
-          <MetricCards />
+              {/* 3. Smart Health Overview: 4 Distinct Metric Cards */}
+              <MetricCards />
 
-          {/* 4. AI Insight Stream: Out-of-range lab markers, verification flags, follow-ups */}
-          <AIInsightStream />
+              {/* 4. AI Insight Stream: Out-of-range lab markers, verification flags, follow-ups */}
+              <AIInsightStream />
 
-          {/* 5. Connected Health Timeline */}
-          <HealthTimeline />
+              {/* 5. Connected Health Timeline */}
+              <HealthTimeline />
 
-          {/* 6. Health Journey Analytics: Radial Donut Chart & Recent Documents */}
-          <HealthJourneyAnalytics />
+              {/* 6. Health Journey Analytics: Radial Donut Chart & Recent Documents */}
+              <HealthJourneyAnalytics />
 
-          {/* 7. Beautiful Document Upload Section: Full OCR & Extraction Pipeline */}
-          <DocumentUpload />
+              {/* 7. Beautiful Document Upload Section: Full OCR & Extraction Pipeline */}
+              <DocumentUpload />
 
-          {/* 8. Medical Records Repository */}
-          <MedicalRecordsSection />
+              {/* 8. Medical Records Repository */}
+              <MedicalRecordsSection />
 
-          {/* 9. Active Medications Section */}
-          <MedicationsSection />
+              {/* 9. Active Medications Section */}
+              <MedicationsSection />
+            </>
+          )}
 
           {/* Footer */}
           <footer className="pt-10 pb-6 border-t border-slate-800/80 text-xs text-slate-400 flex flex-col md:flex-row items-center justify-between gap-4">
